@@ -14,7 +14,7 @@ def getStockCode():
     for tr in trs[1:]:
         if len(tr) < 2:
             continue
-        if len(tr.contents[4].text) > 2:
+        if tr.contents[5].text == 'ESVUFR':
             content.append('%s,%s'%(tr.contents[0].text[:4], tr.contents[0].text[5:]))
 
     return content
