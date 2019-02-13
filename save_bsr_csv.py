@@ -79,5 +79,10 @@ def get_bsr_csv(stock):
             scuess = 1
         else:
             time.sleep(0.5)
+    
+    return r1.content.decode(encoding='big5', errors='ignore')
 
-    return r1.content.decode('cp950')
+def get_bsr_date():
+    page = requests.get('http://bsr.twse.com.tw/bshtm/bsWelcome.aspx')
+    soup = BeautifulSoup(page.content, 'html.parser')
+    return soup.select('span[id==Label_Date]')[0].string.replace('/', '-')
