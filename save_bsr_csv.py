@@ -6,24 +6,10 @@ from pytesseract import image_to_string
 import numpy as np
 import cv2
 import requests
+from requests.adapters import HTTPAdapter
 import time
 from bs4 import BeautifulSoup
  
-def request_captcha(page):    
-    base_url = 'http://bsr.twse.com.tw/bshtm/'
-    # Get the capthca on TWSE's website. It's the second image on the page.
-    soup = BeautifulSoup(page.content, 'html.parser')
-    img_url = soup.findAll('img')[1]['src']
-    
-    # Request the captch and write it to disk.
-    img = requests.get(base_url + img_url)
-    if img.status_code == 200:
-        img = img.content
-    else:
-        print('error')
-
-    return img
-
 def clean_captcha(captcha):
     # Convert the image file to a Numpy array and read it into a OpenCV file.
     captcha = np.asarray(bytearray(captcha), dtype="uint8")
@@ -48,11 +34,40 @@ def clean_captcha(captcha):
 
 def get_bsr_csv(stock):
     rs = requests.session()
-    page = rs.get('http://bsr.twse.com.tw/bshtm/bsMenu.aspx')
 
     scuess = 0
     while scuess == 0:
-        captcha = clean_captcha(request_captcha(page))
+
+        try:
+            page = rs.get('http://bsr.twse.com.tw/bshtm/bsMenu.aspx')
+        except requests.exceptions.RequestException as e:
+            print(e)
+            time.sleep(2.0)
+            continue
+
+        if page.status_code != 200:
+            time.sleep(2.0)
+            continue
+        # Get the capthca on TWSE's website. It's the second image on the page.
+        soup = BeautifulSoup(page.content, 'html.parser')
+        img_url = soup.findAll('img')[1]['src']
+  
+        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.90 Safari/537.36'}
+        # Request the captch
+        try:
+            img = requests.get('http://bsr.twse.com.tw/bshtm/' + img_url, headers=headers)
+        except requests.exceptions.RequestException as e:
+            print(e)
+            time.sleep(2.0)
+            continue
+        if img.status_code == 200:
+            img = img.content
+        else:
+            print('status code %s' % img.status_code)
+            time.sleep(10.0)
+            continue
+
+        captcha = clean_captcha(img)
         captcha = re.sub('[^0-9A-Z]+', '', image_to_string(captcha).upper())
 
         payload = {
@@ -71,18 +86,38 @@ def get_bsr_csv(stock):
         for inp in soup.select("input[type==hidden]"):
             payload[inp['id']] = inp['value']
 
-        page = rs.post('http://bsr.twse.com.tw/bshtm/bsMenu.aspx', data=payload)
+        try:
+            page = rs.post('http://bsr.twse.com.tw/bshtm/bsMenu.aspx', data=payload)
+        except requests.exceptions.RequestException as e:
+            print(e)
+            time.sleep(2.0)
+            continue
+        if page.status_code != 200:
+            time.sleep(2.0)
+            continue
+
         soup = BeautifulSoup(page.content, 'html.parser')
-      
+     
         if soup.select('span[id==Label_ErrorMsg]')[0].string == None:
             r1 = rs.get('http://bsr.twse.com.tw/bshtm/bsContent.aspx')
             scuess = 1
         else:
-            time.sleep(0.5)
+            time.sleep(2.0)
     
     return r1.content.decode(encoding='big5', errors='ignore')
 
 def get_bsr_date():
-    page = requests.get('http://bsr.twse.com.tw/bshtm/bsWelcome.aspx')
-    soup = BeautifulSoup(page.content, 'html.parser')
-    return soup.select('span[id==Label_Date]')[0].string.replace('/', '-')
+    rs = requests.session()
+    while True:
+        try:
+            page = rs.get('http://bsr.twse.com.tw/bshtm/bsWelcome.aspx')
+        except requests.exceptions.RequestException as e:
+            print(e)
+            continue
+        if page.status_code == 200:
+            soup = BeautifulSoup(page.content, 'html.parser')
+            return soup.select('span[id==Label_Date]')[0].string.replace('/', '-')
+        else:
+            time.sleep(2.0)
+
+
