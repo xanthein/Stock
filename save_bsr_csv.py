@@ -33,13 +33,14 @@ def clean_captcha(captcha):
     return captcha
 
 def get_bsr_csv(stock):
+    headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:65.0) Gecko/20100101 Firefox/65.0'}
     rs = requests.session()
 
     scuess = 0
     while scuess == 0:
 
         try:
-            page = rs.get('http://bsr.twse.com.tw/bshtm/bsMenu.aspx')
+            page = rs.get('http://bsr.twse.com.tw/bshtm/bsMenu.aspx', headers=headers)
         except requests.exceptions.RequestException as e:
             print(e)
             time.sleep(2.0)
@@ -52,7 +53,6 @@ def get_bsr_csv(stock):
         soup = BeautifulSoup(page.content, 'html.parser')
         img_url = soup.findAll('img')[1]['src']
   
-        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.90 Safari/537.36'}
         # Request the captch
         try:
             img = requests.get('http://bsr.twse.com.tw/bshtm/' + img_url, headers=headers)
@@ -87,7 +87,7 @@ def get_bsr_csv(stock):
             payload[inp['id']] = inp['value']
 
         try:
-            page = rs.post('http://bsr.twse.com.tw/bshtm/bsMenu.aspx', data=payload)
+            page = rs.post('http://bsr.twse.com.tw/bshtm/bsMenu.aspx', data=payload, headers=headers)
         except requests.exceptions.RequestException as e:
             print(e)
             time.sleep(2.0)
@@ -99,7 +99,7 @@ def get_bsr_csv(stock):
         soup = BeautifulSoup(page.content, 'html.parser')
      
         if soup.select('span[id==Label_ErrorMsg]')[0].string == None:
-            r1 = rs.get('http://bsr.twse.com.tw/bshtm/bsContent.aspx')
+            r1 = rs.get('http://bsr.twse.com.tw/bshtm/bsContent.aspx', headers=headers)
             scuess = 1
         else:
             time.sleep(2.0)
@@ -107,10 +107,11 @@ def get_bsr_csv(stock):
     return r1.content.decode(encoding='big5', errors='ignore')
 
 def get_bsr_date():
+    headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:65.0) Gecko/20100101 Firefox/65.0'}
     rs = requests.session()
     while True:
         try:
-            page = rs.get('http://bsr.twse.com.tw/bshtm/bsWelcome.aspx')
+            page = rs.get('http://bsr.twse.com.tw/bshtm/bsWelcome.aspx', headers=headers)
         except requests.exceptions.RequestException as e:
             print(e)
             continue
