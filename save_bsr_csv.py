@@ -83,7 +83,7 @@ def get_bsr_csv(stock):
         payload['TextBox_Stkno'] = str(stock)
 
         soup = BeautifulSoup(page.content, 'html.parser')
-        for inp in soup.select("input[type==hidden]"):
+        for inp in soup.select('input[type=hidden]'):
             payload[inp['id']] = inp['value']
 
         try:
@@ -98,7 +98,7 @@ def get_bsr_csv(stock):
 
         soup = BeautifulSoup(page.content, 'html.parser')
      
-        if soup.select('span[id==Label_ErrorMsg]')[0].string == None:
+        if soup.select('span[id=Label_ErrorMsg]')[0].string == None:
             r1 = rs.get('http://bsr.twse.com.tw/bshtm/bsContent.aspx', headers=headers)
             scuess = 1
         else:
@@ -117,7 +117,7 @@ def get_bsr_date():
             continue
         if page.status_code == 200:
             soup = BeautifulSoup(page.content, 'html.parser')
-            return soup.select('span[id==Label_Date]')[0].string.replace('/', '-')
+            return soup.select('span[id=Label_Date]')[0].string.replace('/', '-')
         else:
             time.sleep(2.0)
 
