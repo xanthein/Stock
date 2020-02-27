@@ -18,6 +18,8 @@ def financial_report(stock_number, year, season, type='BalanceSheet'):
         url = "https://mops.twse.com.tw/mops/web/ajax_t164sb05"; # 現金流量表
     elif type == 'Dividend': 
         url = "https://mops.twse.com.tw/mops/web/ajax_t05st09"; # 股利
+    elif type == 'Revenu':
+        url = "https://mops.twse.com.tw/mops/web/ajax_t05st10_ifrs"; # 營收
     elif type == 'HoldingShare': 
         url = "https://mops.twse.com.tw/mops/web/ajax_stapap1"; # 董監持股
 
@@ -36,16 +38,15 @@ def financial_report(stock_number, year, season, type='BalanceSheet'):
         'season':season,
     }
 
-    if type == 'HoldingShare':
+    if type == 'HoldingShare' or type == 'Revenu':
         form_data.pop('season', None)
-        form_data['month'] = season
+        form_data['month'] = "%02d" % season
 
     r = requests.post(url, form_data)
     soup = BeautifulSoup(r.text, 'html.parser')
     if soup.select('input[type=button]') is not None:
         form_data['step'] = 2
         r = requests.post(url, form_data)
-
     if type == 'HoldingShare':
         html_df = pd.read_html(r.text)[4].fillna("")
     else:
