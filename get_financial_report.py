@@ -53,6 +53,64 @@ def financial_report(stock_number, year, season, type='BalanceSheet'):
         html_df = pd.read_html(r.text)[1].fillna("")
     return html_df
 
+def get_revenu(year, month):
+    if year > 1911:
+        year -= 1911
+
+    url = 'https://mops.twse.com.tw/nas/t21/sii/t21sc03_'+str(year)+'_'+str(month)+'_0.html'
+    if year <= 98:
+        url = 'https://mops.twse.com.tw/nas/t21/sii/t21sc03_'+str(year)+'_'+str(month)+'.html'
+
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+
+    r = requests.get(url, headers=headers)
+    r.encoding = 'big5'
+
+    dfs = pd.read_html(r.text, encoding='big-5')
+
+    df = pd.concat([df for df in dfs if df.shape[1] <= 11 and df.shape[1] > 5])
+
+    if 'levels' in dir(df.columns):
+        df.columns = df.columns.get_level_values(1)
+    else:
+        df = df[list(range(0,10))]
+        column_index = df.index[(df[0] == '公司代號')][0]
+        df.columns = df.iloc[column_index]
+
+    df['當月營收'] = pd.to_numeric(df['當月營收'], 'coerce')
+    df = df[~df['當月營收'].isnull()]
+    df = df[df['公司代號'] != '合計']
+
+    return df
+
+def financial_report_all(year, season, type='BalanceSheet'):
+    if type == 'BalanceSheet':
+        url = ""; # 資產負債表
+    elif type == 'ProfitAndLose':
+        url = ""; # 損益表
+    elif type == 'CashFlowStatement':
+        url = ""; # 現金流量表
+    elif type == 'Dividend':
+        url = ""; # 股利
+    elif type == 'HoldingShare':
+        url = ""; # 董監持股
+
+    if year >= 1000:
+        year -= 1911
+
+    form_data = {
+        'encodeURIComponent':1,
+        'step':1,
+        'firstin':1,
+        'off':1,
+        'TYPEK':'all',
+        'co_id':stock_number,
+        'isnew':'false',
+        'year':year,
+        'season':season,
+    }
+
+
 def calculate_stock_info(stock_number, year):
     if year > datetime.datetime.now().year:
         raise Exception('year in the future')
