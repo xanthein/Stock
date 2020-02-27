@@ -83,6 +83,31 @@ def get_revenu(year, month):
 
     return df
 
+def get_balance_sheet(year, season):
+    if year > 1911:
+        year -= 1911
+
+    url = 'https://mops.twse.com.tw/mops/web/ajax_t163sb05'
+
+    form_data = {
+        'encodeURIComponent':1,
+        'step':1,
+        'firstin':1,
+        'off':1,
+        'isQuery':'Y',
+        'TYPEK':'sii',
+        'year':year,
+        'season':season,
+    }
+
+    r = requests.post(url, form_data)
+
+    dfs = pd.read_html(r.text)
+
+    df = pd.concat(df.rename(columns={'資產總額':'資產總計', '負債總額':'負債總計', '權益總額':'權益總計'})[['公司代號', '公司名稱', '資產總計', '負債總計', '權益總計', '股本', '每股參考淨值']] for df in dfs if df.shape[1] > 10)
+
+    return df
+
 def financial_report_all(year, season, type='BalanceSheet'):
     if type == 'BalanceSheet':
         url = ""; # 資產負債表
