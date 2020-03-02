@@ -141,34 +141,6 @@ def get_dividend(year):
 
     return df
 
-def financial_report_all(year, season, type='BalanceSheet'):
-    if type == 'BalanceSheet':
-        url = ""; # 資產負債表
-    elif type == 'ProfitAndLose':
-        url = ""; # 損益表
-    elif type == 'CashFlowStatement':
-        url = ""; # 現金流量表
-    elif type == 'Dividend':
-        url = ""; # 股利
-    elif type == 'HoldingShare':
-        url = ""; # 董監持股
-
-    if year >= 1000:
-        year -= 1911
-
-    form_data = {
-        'encodeURIComponent':1,
-        'step':1,
-        'firstin':1,
-        'off':1,
-        'TYPEK':'all',
-        'co_id':stock_number,
-        'isnew':'false',
-        'year':year,
-        'season':season,
-    }
-
-
 def calculate_stock_info(stock_number, year):
     if year > datetime.datetime.now().year:
         raise Exception('year in the future')
