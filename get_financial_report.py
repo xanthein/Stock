@@ -83,12 +83,7 @@ def get_revenu(year, month):
 
     return df
 
-def get_balance_sheet(year, season):
-    if year > 1911:
-        year -= 1911
-
-    url = 'https://mops.twse.com.tw/mops/web/ajax_t163sb05'
-
+def fetch_from_url(url, year, season):
     form_data = {
         'encodeURIComponent':1,
         'step':1,
@@ -101,10 +96,28 @@ def get_balance_sheet(year, season):
     }
 
     r = requests.post(url, form_data)
-
     dfs = pd.read_html(r.text)
+    return dfs
 
+def get_balance_sheet(year, season):
+    if year > 1911:
+        year -= 1911
+
+    url = 'https://mops.twse.com.tw/mops/web/ajax_t163sb05'
+
+    dfs = fetch_from_url(url, year, season)
     df = pd.concat(df.rename(columns={'資產總額':'資產總計', '負債總額':'負債總計', '權益總額':'權益總計'})[['公司代號', '公司名稱', '資產總計', '負債總計', '權益總計', '股本', '每股參考淨值']] for df in dfs if df.shape[1] > 10)
+
+    return df
+
+def get_profit_lose(year, season):
+    if year > 1911:
+        year -= 1911
+
+    url = 'https://mops.twse.com.tw/mops/web/t163sb04'
+
+    dfs = fetch_from_url(url, year, season)
+    df = pd.concat(df.rename(columns={'本期稅後淨利（淨損）':'本期淨利（淨損）','其他綜合損益（稅後）':'其他綜合損益', '其他綜合損益（淨額）':'其他綜合損益', '其他綜合損益（稅後淨額）':'其他綜合損益', '本期其他綜合損益（稅後淨額）':'其他綜合損益', '本期綜合損益總額（稅後）':'本期綜合損益總額', '本期綜合損益總額（稅後）':'本期綜合損益總額'})[['公司代號', '公司名稱', '本期淨利（淨損）', '其他綜合損益', '本期綜合損益總額']] for df in dfs if df.shape[1] > 10)
 
     return df
 
