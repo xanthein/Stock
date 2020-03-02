@@ -121,6 +121,26 @@ def get_profit_lose(year, season):
 
     return df
 
+def get_dividend(year):
+    if year > 1911:
+        year -= 1911
+
+    url = 'https://mops.twse.com.tw/server-java/t05st09sub'
+
+    form_data = {
+        'step':1,
+        'TYPEK':'otc',
+        'qryType':1,
+        'YEAR':year,
+    }
+
+    r = requests.post(url, form_data)
+    r.encoding = 'big5'
+    dfs = pd.read_html(r.text, encoding='big-5')
+    df = pd.concat([df for df in dfs if df.shape[1] <= 20 and df.shape[1] > 5])
+
+    return df
+
 def financial_report_all(year, season, type='BalanceSheet'):
     if type == 'BalanceSheet':
         url = ""; # 資產負債表
