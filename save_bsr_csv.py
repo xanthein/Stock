@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import re
 
-from scipy.misc import toimage
+from PIL import Image
 from pytesseract import image_to_string
 import numpy as np
 import cv2
@@ -28,16 +28,15 @@ def clean_captcha(captcha):
     captcha = cv2.fastNlMeansDenoising(captcha, h=50)
     
     # Turn the Numpy array back into a image
-    captcha = toimage(captcha) 
+    captcha = Image.fromarray(captcha)
     
     return captcha
 
 def get_bsr_csv(stock):
     headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:65.0) Gecko/20100101 Firefox/65.0'}
-    rs = requests.session()
 
-    scuess = 0
-    while scuess == 0:
+    while True:
+        rs = requests.session()
 
         try:
             page = rs.get('http://bsr.twse.com.tw/bshtm/bsMenu.aspx', headers=headers)
@@ -55,7 +54,7 @@ def get_bsr_csv(stock):
   
         # Request the captch
         try:
-            img = requests.get('http://bsr.twse.com.tw/bshtm/' + img_url, headers=headers)
+            img = requests.get('https://bsr.twse.com.tw/bshtm/' + img_url, headers=headers)
         except requests.exceptions.RequestException as e:
             print(e)
             time.sleep(2.0)
@@ -87,25 +86,28 @@ def get_bsr_csv(stock):
             payload[inp['id']] = inp['value']
 
         try:
-            page = rs.post('http://bsr.twse.com.tw/bshtm/bsMenu.aspx', data=payload, headers=headers)
+            page = rs.post('https://bsr.twse.com.tw/bshtm/bsMenu.aspx', data=payload, headers=headers)
         except requests.exceptions.RequestException as e:
             print(e)
             time.sleep(2.0)
             continue
         if page.status_code != 200:
+            print('read page fail, status code %s' % page.status_code)
             time.sleep(2.0)
             continue
 
         soup = BeautifulSoup(page.content, 'html.parser')
+        page_err = soup.select('span[id=Label_ErrorMsg]')[0].string
      
-        if soup.select('span[id=Label_ErrorMsg]')[0].string == None:
-            r1 = rs.get('http://bsr.twse.com.tw/bshtm/bsContent.aspx', headers=headers)
-            scuess = 1
+        if page_err == None:
+            r1 = rs.get('https://bsr.twse.com.tw/bshtm/bsContent.aspx?v=t', headers=headers)
+            return r1.content
+        elif page_err == '查無資料':
+            return 'None'
         else:
+            print(page_err)
             time.sleep(2.0)
     
-    return r1.content.decode(encoding='big5', errors='ignore')
-
 def get_bsr_date():
     headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:65.0) Gecko/20100101 Firefox/65.0'}
     rs = requests.session()
