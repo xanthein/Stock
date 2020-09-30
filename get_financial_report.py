@@ -200,8 +200,9 @@ def calculate_stock_info(stock_number, year):
     PE_ratio = average_price / eps
     debt_ratio = liability / asset
     holding_ratio = totalholding / share
+    net_worth = (asset - liability)/share
 
-    return ROE, dividend_payout_ratio, dividend_yield, PE_ratio, debt_ratio, holding_ratio
+    return ROE, dividend_payout_ratio, dividend_yield, PE_ratio, debt_ratio, holding_ratio, net_worth
 
 
 if __name__ == '__main__':
@@ -211,7 +212,7 @@ if __name__ == '__main__':
     
     stock_number = int(sys.argv[1])
     year = int(sys.argv[2])
-    ROE, dividend_payout_ratio, dividend_yield, PE_ratio, debt_ratio, holding_ratio = calculate_stock_info(stock_number, year)
+    ROE, dividend_payout_ratio, dividend_yield, PE_ratio, debt_ratio, holding_ratio, net_worth = calculate_stock_info(stock_number, year)
 
     print('ROE')
     print(ROE)
@@ -225,6 +226,8 @@ if __name__ == '__main__':
     print(debt_ratio)
     print('董監持股')
     print(holding_ratio)
+    print('淨值')
+    print(net_worth)
 
 
 
