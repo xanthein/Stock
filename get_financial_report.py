@@ -16,16 +16,16 @@ def financial_report(stock_number, year, season, type='BalanceSheet'):
         url = "https://mops.twse.com.tw/mops/web/ajax_t164sb04"; # 損益表
     elif type == 'CashFlowStatement':
         url = "https://mops.twse.com.tw/mops/web/ajax_t164sb05"; # 現金流量表
-    elif type == 'Dividend': 
+    elif type == 'Dividend':
         url = "https://mops.twse.com.tw/mops/web/ajax_t05st09"; # 股利
     elif type == 'Revenu':
         url = "https://mops.twse.com.tw/mops/web/ajax_t05st10_ifrs"; # 營收
-    elif type == 'HoldingShare': 
+    elif type == 'HoldingShare':
         url = "https://mops.twse.com.tw/mops/web/ajax_stapap1"; # 董監持股
 
     if year >= 1000:
         year -= 1911
-    
+
     form_data = {
         'encodeURIComponent':1,
         'step':1,
@@ -209,7 +209,7 @@ if __name__ == '__main__':
     if len(sys.argv) < 3:
         print(sys.argv[0]+' <stock number> <year>')
         sys.exit()
-    
+
     stock_number = int(sys.argv[1])
     year = int(sys.argv[2])
     ROE, dividend_payout_ratio, dividend_yield, PE_ratio, debt_ratio, holding_ratio, net_worth = calculate_stock_info(stock_number, year)
