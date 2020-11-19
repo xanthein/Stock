@@ -100,8 +100,8 @@ def get_bsr_csv(stock):
         page_err = soup.select('span[id=Label_ErrorMsg]')[0].string
 
         if page_err == None:
-            r1 = rs.get('https://bsr.twse.com.tw/bshtm/bsContent.aspx?v=t', headers=headers)
-            return r1.content
+            r1 = rs.get('https://bsr.twse.com.tw/bshtm/bsContent.aspx', headers=headers)
+            return r1.content.decode('big5')
         elif page_err == '查無資料':
             return 'None'
         else:
