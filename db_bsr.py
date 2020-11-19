@@ -1,22 +1,21 @@
 #!/usr/bin/python3
 
 import csv
-import time
-import MySQLdb as sql
+import pymysql as sql
 from io import StringIO
 from save_bsr_csv import get_bsr_csv
 from save_bsr_csv import get_bsr_date
 
 def update_stock_bsr(stock):
-    date = time.strftime('%Y-%m-%d', time.localtime())
 
-    if get_bsr_date() != date:
-        print("date wrong")
-        return
+    date = get_bsr_date()
 
-    csvfile = StringIO(get_bsr_csv(stock))
-
-    conn = sql.connect(user='dirk@localhost', passwd='pass', db='bsr', charset="utf8")
+    conn = sql.connect(host='localhost',
+                       user='dirk',
+                       passwd='pass',
+                       db='bsr',
+                       charset='utf8',
+                       cursorclass=sql.cursors.DictCursor)
     cur = conn.cursor()
     try:
         cur.execute('''SELECT date FROM `%s` LIMIT 1;''' % stock)
@@ -26,7 +25,10 @@ def update_stock_bsr(stock):
         conn.commit()
 
     cur.execute('''SELECT * FROM `%s` WHERE date = "%s";''' % (stock, date))
+
+    #make sure nothing duplicated
     if len(cur.fetchall()) == 0:
+        csvfile = StringIO(get_bsr_csv(stock))
         rows = csv.reader(csvfile)
         next(rows)
         next(rows)
