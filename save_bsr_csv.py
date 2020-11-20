@@ -101,7 +101,11 @@ def get_bsr_csv(stock):
 
         if page_err == None:
             r1 = rs.get('https://bsr.twse.com.tw/bshtm/bsContent.aspx', headers=headers)
-            return r1.content.decode('big5')
+            if r1.status_code != 200:
+                print('read r1 fail, status code {status}'.format(status=r1.status_code))
+                time.sleep(2.0)
+                continue
+            return r1.content.decode('Big5hkscs')
         elif page_err == '查無資料':
             return 'None'
         else:
