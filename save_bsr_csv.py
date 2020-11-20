@@ -62,7 +62,7 @@ def get_bsr_csv(stock):
         if img.status_code == 200:
             img = img.content
         else:
-            print('status code %s' % img.status_code)
+            print('status code {status}'.format(status=img.status_code))
             time.sleep(10.0)
             continue
 
@@ -92,7 +92,7 @@ def get_bsr_csv(stock):
             time.sleep(2.0)
             continue
         if page.status_code != 200:
-            print('read page fail, status code %s' % page.status_code)
+            print('read page fail, status code {status}'.format(status=page.status_code))
             time.sleep(2.0)
             continue
 
