@@ -5,6 +5,7 @@ import time
 from scipy import stats
 import numpy
 import twstock
+import csv
 
 def pass_63ma(stock):
     stock = twstock.Stock(stock, False)
@@ -26,3 +27,10 @@ def pass_63ma(stock):
     except Exception as e:
         print(e)
         return False
+
+with open('stock.csv', 'r') as csvfile:
+    rows = csv.reader(csvfile)
+    for row in rows:
+        print('%s %s' % (row[0], row[1]))
+        if pass_63ma(row[0]):
+            print("%s" % row[0])
