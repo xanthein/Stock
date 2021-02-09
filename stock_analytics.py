@@ -13,11 +13,11 @@ class Analytics(object):
     def pass_63ma(stock):
         stock = twstock.Stock(stock, False)
         today = datetime.datetime.today()
-        before = today - datetime.timedelta(days=100)
+        before = today - datetime.timedelta(days=90)
         stock.fetch_from(before.year, before.month)
         price = list(filter(lambda x: x!=None, stock.price))
         if len(price) < 63 or stock.price[-1] == None:
-            return False
+            return False, []
         try:
             ma = stock.moving_average(price, 63)
             slope, intercept, rvalue, pvalue, stderr = stats.linregress(ma, numpy.arange(0, len(ma)))
@@ -26,7 +26,7 @@ class Analytics(object):
                 slope > 0:
                 return True, stock
             else:
-                return False
+                return False, []
         except Exception as e:
             print(e)
-            return False
+            return False, []
