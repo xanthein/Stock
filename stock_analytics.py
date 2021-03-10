@@ -19,11 +19,14 @@ class Analytics(object):
         if len(price) < 63 or stock.price[-1] == None:
             return False, []
         try:
-            ma = stock.moving_average(price, 63)
-            slope, intercept, rvalue, pvalue, stderr = stats.linregress(ma, numpy.arange(0, len(ma)))
-            if stock.price[-1] > ma[-1] and \
-                stock.price[-1] < ma[-1] * 1.06 and \
-                slope > 0:
+            ma63 = stock.moving_average(price, 63)
+            ma5 = stock.moving_average(price, 5)
+            ma63_slope, intercept, rvalue, pvalue, stderr = stats.linregress(ma63, numpy.arange(0, len(ma63)))
+            ma5_slope, intercept, rvalue, pvalue, stderr = stats.linregress(ma5, numpy.arange(0, len(ma5)))
+            if ma5[-1] > ma63[-1] and \
+                ma5[-1] < ma63[-1] * 1.06 and \
+                ma63_slope > 0 and \
+                ma5_slope > 0:
                 return True, stock
             else:
                 return False, []
