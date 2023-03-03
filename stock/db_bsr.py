@@ -3,8 +3,8 @@
 import csv
 import pymysql as sql
 from io import StringIO
-from save_bsr_csv import get_bsr_csv
-from save_bsr_csv import get_bsr_date
+from stock.save_bsr_csv import get_bsr_csv
+from stock.save_bsr_csv import get_bsr_date
 
 def update_stock_bsr(stock):
 
