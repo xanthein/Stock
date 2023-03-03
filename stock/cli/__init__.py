@@ -5,9 +5,9 @@ import threading
 import csv
 import time
 import twstock
-from stock_analytics import Analytics
-from stock_draw import Draw
-from db_bsr import update_stock_bsr
+from stock.analytics import Analytics
+from stock.draw import Draw
+from stock.db_bsr import update_stock_bsr
 
 def do_save_bsr(filename, verb):
     with open(filename, 'r') as csvfile:
@@ -37,7 +37,7 @@ def do_analyse(filename, verb):
                 Draw.DrawCandle(stock)
             time.sleep(25)
 
-if __name__ == '__main__':
+def run(argv):
     parser = argparse.ArgumentParser()
     command = parser.add_mutually_exclusive_group()
     command.add_argument('--save_bsr', help='Save the buy-sell report for stock',
