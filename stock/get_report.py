@@ -205,6 +205,17 @@ def calculate_stock_info(stock_number, year):
     return ROE, dividend_payout_ratio, dividend_yield, PE_ratio, debt_ratio, holding_ratio, net_worth
 
 
+def get_stock_day_trading_report():
+    report = requests.get("https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL")
+    if report.status_code == 200:
+        date = datetime.datetime.strptime(report.headers["Last-Modified"], "%a, %d %b %Y %H:%M:%S %Z")
+        data = report.json()
+
+        return date, data
+    else:
+        return None
+
+
 if __name__ == '__main__':
     if len(sys.argv) < 3:
         print(sys.argv[0]+' <stock number> <year>')
