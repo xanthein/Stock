@@ -5,6 +5,8 @@ import pandas as pd
 import twstock
 import time
 import datetime
+import argparse
+import json
 from bs4 import BeautifulSoup
 
 
@@ -217,28 +219,36 @@ def get_stock_day_trading_report():
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 3:
-        print(sys.argv[0]+' <stock number> <year>')
-        sys.exit()
+    parser = argparse.ArgumentParser(
+           description="A tool to get stock information",
+           formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    subcommand = parser.add_subparsers(dest="subcommand", help="subcommands")
 
-    stock_number = int(sys.argv[1])
-    year = int(sys.argv[2])
-    ROE, dividend_payout_ratio, dividend_yield, PE_ratio, debt_ratio, holding_ratio, net_worth = calculate_stock_info(stock_number, year)
+    parser_financial = subcommand.add_parser("financial", help="Get financial report")
+    parser_financial.add_argument("--year", dest="year", type=int, action="store", required=True, help="Which year to get report")
+    parser_financial.add_argument("stock", type=int)
 
-    print('ROE')
-    print(ROE)
-    print('配息率')
-    print(dividend_payout_ratio)
-    print('殖利率')
-    print(dividend_yield)
-    print('本益本')
-    print(PE_ratio)
-    print('負債比')
-    print(debt_ratio)
-    print('董監持股')
-    print(holding_ratio)
-    print('淨值')
-    print(net_worth)
+    parser_trading = subcommand.add_parser("trading", help="Get day trading report")
+    args = parser.parse_args()
 
+    if args.subcommand == "financial":
+        ROE, dividend_payout_ratio, dividend_yield, PE_ratio, debt_ratio, holding_ratio, net_worth = calculate_stock_info(args.stock, args.year)
 
-
+        print('ROE')
+        print(ROE)
+        print('配息率')
+        print(dividend_payout_ratio)
+        print('殖利率')
+        print(dividend_yield)
+        print('本益本')
+        print(PE_ratio)
+        print('負債比')
+        print(debt_ratio)
+        print('董監持股')
+        print(holding_ratio)
+        print('淨值')
+        print(net_worth)
+    elif args.subcommand == "trading":
+        date, data = get_stock_day_trading_report()
+        with open("trading_" + date.strftime("%Y-%m-%d"), "w") as fd:
+            json.dump(data, fd)

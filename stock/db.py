@@ -1,3 +1,6 @@
+import argparse
+import datetime
+import json
 import sqlite3
 
 def update_stock_report(db_path, date, data):
@@ -18,3 +21,26 @@ def update_stock_report(db_path, date, data):
             cur.execute(f"INSERT INTO table_{code} (date, open_price, high_price, low_price, close_price, volume) VALUES ('{input_date}', {open_price}, {high_price}, {low_price}, {close_price}, {volume})")
     con.commit()
     con.close()
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+           description="A tool to handle data with sqlite database",
+           formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    subcommand = parser.add_subparsers(dest="subcommand", help="subcommands")
+
+    parser_trading = subcommand.add_parser("add", help="add data to db")
+    parser_trading.add_argument("--trading-report", dest="trading", type=str, action="store", help="trading report file with filename trading_<yyyy-mm-dd>")
+
+    parser.add_argument("db", type=str)
+
+    args = parser.parse_args()
+
+    if args.subcommand == "add":
+        try:
+            if args.trading:
+                date = datetime.datetime.strptime(args.trading, "trading_%Y-%m-%d")
+                with open(args.trading, "r") as fd:
+                    data = json.load(fd)
+                    update_stock_report(args.db, date, data)
+        except Exception as error:
+            print(error)
