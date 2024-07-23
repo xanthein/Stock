@@ -1,0 +1,32 @@
+name: Day Trading
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+jobs:
+  fetch:
+    name: Update day traing report
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout master branch
+        uses: actions/checkout@v4
+        with:
+          ref: master
+      - name: Install dependencies
+        run: |
+          sudo apt install python3-full
+          python3 -m venv virtual
+          source virtual/bin/activate
+          echo "VIRTUAL ENV:" $VIRTUAL_ENV
+          pip3 install pandas twstock lxml bs4
+      - name: Get day trading report
+        run: |
+          source virtual/bin/activate
+          python3 stock/get_report.py trading
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: report
+          path: trading_*
