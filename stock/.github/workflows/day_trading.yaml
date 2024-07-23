@@ -1,0 +1,19 @@
+name: Day Trading
+
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+jobs:
+  fetch:
+    name: Update day traing report
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Get day trading report
+        run: |
+          python3 get_report.py trading
