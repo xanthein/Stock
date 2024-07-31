@@ -1,6 +1,7 @@
 import argparse
 import datetime
 import json
+import os
 import sqlite3
 
 def update_stock_report(db_path, date, data):
@@ -38,7 +39,7 @@ if __name__ == '__main__':
     if args.subcommand == "add":
         try:
             if args.trading:
-                date = datetime.datetime.strptime(args.trading, "trading_%Y-%m-%d")
+                date = datetime.datetime.strptime(os.path.basename(args.trading), "trading_%Y-%m-%d")
                 with open(args.trading, "r") as fd:
                     data = json.load(fd)
                     update_stock_report(args.db, date, data)
