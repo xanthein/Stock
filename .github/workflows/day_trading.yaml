@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: xanthein/stock_db
+          token: ${{ secrets.DAILY_REPORT_TOKEN }}
           path: stock_db
       - name: Install dependencies
         run: |
@@ -36,7 +37,11 @@ jobs:
           python3 tool/stock/db.py add --trading-report=$(ls trading_*) stock_db/daily_report
       - name: commit db
         run: |
-          git config --global user.name 'Dirk Su'
-          git config --global user.email 'xanthein@users.noreply.github.com'
-          git -C stock_db commit -am "Update $(ls trading_*)"
-          git -C stock_db push
+          if git -C stock_db status daily_report | grep -q modified;
+          then
+              echo "Update $(ls trading_*)"
+              git config --global user.name 'Dirk Su'
+              git config --global user.email 'xanthein@users.noreply.github.com'
+              git -C stock_db commit -am "Update $(ls trading_*)"
+              git -C stock_db push
+          fi
