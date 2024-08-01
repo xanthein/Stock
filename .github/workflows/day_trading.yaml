@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          sudo apt install python3-full git-lfs
+          sudo apt install python3-full
           python3 -m venv virtual
           source virtual/bin/activate
           pip3 install pandas twstock lxml bs4
@@ -26,6 +26,7 @@ jobs:
           repository: xanthein/stock_db
           token: ${{ secrets.DAILY_REPORT_TOKEN }}
           path: stock_db
+          lfs: true
       - name: Get day trading report
         run: |
           source virtual/bin/activate
@@ -33,7 +34,6 @@ jobs:
       - name: Update db
         run: |
           source virtual/bin/activate
-          ls stock_db
           python3 tool/stock/db.py add --trading-report=$(ls trading_*) stock_db/daily_report
       - name: commit db
         run: |
