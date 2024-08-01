@@ -10,6 +10,12 @@ jobs:
     name: Update day traing report
     runs-on: ubuntu-24.04
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt install python3-full git-lfs
+          python3 -m venv virtual
+          source virtual/bin/activate
+          pip3 install pandas twstock lxml bs4
       - name: Checkout stock tool
         uses: actions/checkout@v4
         with:
@@ -20,12 +26,6 @@ jobs:
           repository: xanthein/stock_db
           token: ${{ secrets.DAILY_REPORT_TOKEN }}
           path: stock_db
-      - name: Install dependencies
-        run: |
-          sudo apt install python3-full
-          python3 -m venv virtual
-          source virtual/bin/activate
-          pip3 install pandas twstock lxml bs4
       - name: Get day trading report
         run: |
           source virtual/bin/activate
