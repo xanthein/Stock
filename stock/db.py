@@ -40,8 +40,11 @@ if __name__ == '__main__':
         try:
             if args.trading:
                 date = datetime.datetime.strptime(os.path.basename(args.trading), "trading_%Y-%m-%d")
-                with open(args.trading, "r") as fd:
-                    data = json.load(fd)
-                    update_stock_report(args.db, date, data)
+                if date.weekday() > 4:
+                    print("Skip " + args.trading + ", which is Saturday/Sunday")
+                else:
+                    with open(args.trading, "r") as fd:
+                        data = json.load(fd)
+                        update_stock_report(args.db, date, data)
         except Exception as error:
             print(error)
