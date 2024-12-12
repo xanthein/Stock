@@ -1,33 +1,18 @@
 #!/usr/bin/python3
 
-import sys
-import datetime
-import time
 from scipy import stats
-import numpy
-import twstock
-import csv
+import pandas as pd
 
-class Analytics(object):
+# pandas data format (date, open, high, low, close, volume)
 
-    def pass_63ma(stock):
-        stock = twstock.Stock(stock, False)
-        today = datetime.datetime.today()
-        before = today - datetime.timedelta(days=90)
-        stock.fetch_from(before.year, before.month)
-        price = list(filter(lambda x: x!=None, stock.price))
-        if len(price) < 63 or stock.price[-1] == None:
-            return False, []
-        try:
-            ma63 = stock.moving_average(price, 63)
-            ma5 = stock.moving_average(price, 5)
-            ma5_slope, intercept, rvalue, pvalue, stderr = stats.linregress(ma5, numpy.arange(0, len(ma5)))
-            if ma5[-1] > ma63[-1] and \
-                ma5[-1] < ma63[-1] * 1.06 and \
-                ma5_slope > 0:
-                return True, stock
-            else:
-                return False, []
-        except Exception as e:
-            print(e)
-            return False, []
+class Analytics():
+    def __init__(self, data):
+        self.data = data.copy()
+        self.data["63ma"] = self.data["close"].rolling(window=63).mean()
+        self.data["5ma"] = self.data["close"].rolling(window=5).mean()
+    def pass_63ma(self):
+        if self.data["5ma"].values[-1] > self.data["63ma"].values[-1] and \
+           self.data["5ma"].values[-1] < self.data["63ma"].values[-1] * 1.06:
+            return True
+        return False
+
