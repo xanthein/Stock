@@ -15,33 +15,28 @@ jobs:
           sudo apt install python3-full
           python3 -m venv virtual
           source virtual/bin/activate
-          pip3 install pandas twstock lxml bs4
+          pip3 install pandas twstock lxml bs4 google-api-python-client
+      - name: create token file
+        run: echo ${{ secrets.GOOGLE_API_TOKEN }} | base64 -d > token.json
       - name: Checkout stock tool
         uses: actions/checkout@v4
         with:
-          path: tool
-      - name: Checkout db
+          path: stock
+      - name: Checkout google API tool
         uses: actions/checkout@v4
         with:
-          repository: xanthein/stock_db
-          token: ${{ secrets.DAILY_REPORT_TOKEN }}
-          path: stock_db
-          lfs: true
+          repository: xanthein/google_api_tool
+          path: google
       - name: Get day trading report
         run: |
           source virtual/bin/activate
-          python3 tool/stock/get_report.py trading
-      - name: Update db
+          python3 stock/stock/get_report.py trading
+      - name: Download and update db
         run: |
           source virtual/bin/activate
-          python3 tool/stock/db.py add --trading-report=$(ls trading_*) stock_db/daily_report
-      - name: commit db
+          python3 google/google_drive.py --file_id ${{ vars.FILE_ID }} --filename daily_report --token token.json download
+          python3 stock/stock/db.py add --trading-report=$(ls trading_*) daily_report
+      - name: Update db in google driver
         run: |
-          if git -C stock_db status daily_report | grep -q modified;
-          then
-              echo "Update $(ls trading_*)"
-              git config --global user.name 'Dirk Su'
-              git config --global user.email 'xanthein@users.noreply.github.com'
-              git -C stock_db commit -am "Update $(ls trading_*)"
-              git -C stock_db push
-          fi
+          source virtual/bin/activate
+          python3 google/google_drive.py --file_id ${{ vars.FILE_ID }} --filename daily_report --token token.json update
