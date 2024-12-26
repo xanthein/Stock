@@ -15,7 +15,7 @@ jobs:
           sudo apt install python3-full
           python3 -m venv virtual
           source virtual/bin/activate
-          pip3 install pandas twstock lxml bs4 google-api-python-client
+          pip3 install pandas twstock lxml bs4 google-api-python-client google-auth-oauthlib
       - name: create token file
         uses: jsdaniell/create-json@v1.2.3
         with:
