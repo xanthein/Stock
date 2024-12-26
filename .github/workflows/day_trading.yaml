@@ -17,7 +17,10 @@ jobs:
           source virtual/bin/activate
           pip3 install pandas twstock lxml bs4 google-api-python-client
       - name: create token file
-        run: echo ${{ secrets.GOOGLE_API_TOKEN }} | base64 -d > token.json
+        uses: jsdaniell/create-json@v1.2.3
+        with:
+          name: "token.json"
+          json: ${{ secrets.GOOGLE_API_TOKEN }}
       - name: Checkout stock tool
         uses: actions/checkout@v4
         with:
