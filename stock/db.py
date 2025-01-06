@@ -21,7 +21,7 @@ class DataBase:
             close_price = float(stock["ClosingPrice"]) if stock["ClosingPrice"] else 0.0
             volume = int(stock["TradeVolume"]) if stock["TradeVolume"] else 0
             self.cursor.execute(f"CREATE TABLE IF NOT EXISTS table_{code} (date STRING, open_price REAL, high_price REAL, low_price REAL, close_price REAL, volume INTEGER)")
-            self.cursor.execute(f"SELECT date FROM table_{code} WHERE date = '{input_date}'")
+            self.cursor.execute(f"SELECT * FROM table_{code} WHERE open_price = '{open_price}' AND high_price = '{high_price}' AND low_price = '{low_price}' AND close_price = '{close_price}'")
             entry = self.cursor.fetchone()
             if entry is None:
                 self.cursor.execute(f"INSERT INTO table_{code} (date, open_price, high_price, low_price, close_price, volume) VALUES ('{input_date}', {open_price}, {high_price}, {low_price}, {close_price}, {volume})")
