@@ -3,7 +3,7 @@
 from scipy import stats
 import pandas as pd
 
-# pandas data format (date, open, high, low, close, volume)
+# pandas data format (open, high, low, close, volume) with date as index
 
 class Analytics():
     def __init__(self, data):
