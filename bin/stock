@@ -1,0 +1,58 @@
+#!/usr/bin/python3
+
+import argparse
+import csv
+import os
+import pandas as pd
+import sys
+
+
+def do_analyse(stock_symbol_path, database_path, verbose):
+    with open(stock_symbol_path, "r") as csvfile:
+        db = DataBase(database_path)
+        rows = csv.reader(csvfile)
+        for row in rows:
+            if verbose:
+                print("%s %s" % (row[0], row[1]))
+            data = db.get_stock_report(row[0])
+            df = pd.DataFrame(
+                data, columns=["date", "open", "high", "low", "close", "volume"]
+            )
+            df.set_index("date", inplace=True)
+            df.index = pd.to_datetime(df.index)
+            analytic = Analytics(df)
+            if analytic.pass_63ma():
+                Draw.DrawCandle(row[0], df)
+
+
+def run():
+    parser = argparse.ArgumentParser()
+    command = parser.add_mutually_exclusive_group()
+    command.add_argument("--analyse", help="Analyse stock", action="store_true")
+    stock_arg = parser.add_mutually_exclusive_group()
+    stock_arg.add_argument("--stock", help="stock number to handle with", type=int)
+    stock_arg.add_argument("--csv", help="csv file with stock number to handle with")
+    parser.add_argument("--verbose", action="store_true")
+    parser.add_argument("--db", help="database file with stock trading datas", type=str)
+
+    args = parser.parse_args()
+    if args.analyse:
+        if args.csv:
+            do_analyse(args.csv, args.db, args.verbose)
+        elif args.stock:
+            print(args.stock)
+            parser.print_help()
+    else:
+        parser.print_help()
+
+
+if __name__ == "__main__":
+    # hack environment
+    self_path = os.path.realpath(__file__)
+    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(self_path), "..")))
+
+    from stock.analytics import Analytics
+    from stock.draw import Draw
+    from stock.db import DataBase
+
+    run()
