@@ -3,8 +3,8 @@
 import requests
 from bs4 import BeautifulSoup
 
-tse_url = "http://isin.twse.com.tw/isin/C_public.jsp?strMode=2"
-otc_url = "http://isin.twse.com.tw/isin/C_public.jsp?strMode=4"
+tse_url = "https://isin.twse.com.tw/isin/C_public.jsp?strMode=2"
+otc_url = "https://isin.twse.com.tw/isin/C_public.jsp?strMode=4"
 
 def getStockCode():
     page = requests.get(tse_url)
