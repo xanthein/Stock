@@ -26,8 +26,8 @@ class DataBase:
             entry = self.cursor.fetchone()
             if entry is None:
                 self.cursor.execute(f"INSERT INTO table_{code} (date, open_price, high_price, low_price, close_price, volume) VALUES ('{input_date}', {open_price}, {high_price}, {low_price}, {close_price}, {volume})")
-    def get_stock_report(self, code):
-            self.cursor.execute(f"SELECT * FROM table_{code}")
+    def get_stock_report(self, code, count):
+            self.cursor.execute(f"SELECT * FROM (SELECT * FROM table_{code} ORDER BY date DESC LIMIT {count}) AS last_row ORDER BY date ASC")
             return self.cursor.fetchall()
 
 if __name__ == '__main__':

@@ -14,7 +14,7 @@ def do_analyse(stock_symbol_path, database_path, verbose):
         for row in rows:
             if verbose:
                 print("%s %s" % (row[0], row[1]))
-            data = db.get_stock_report(row[0])
+            data = db.get_stock_report(row[0], 90)
             df = pd.DataFrame(
                 data, columns=["date", "open", "high", "low", "close", "volume"]
             )
