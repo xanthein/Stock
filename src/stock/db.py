@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-import argparse
-import datetime
-import json
-import os
 import sqlite3
 
 class DataBase:
@@ -29,30 +25,3 @@ class DataBase:
     def get_stock_report(self, code, count):
             self.cursor.execute(f"SELECT * FROM (SELECT * FROM table_{code} ORDER BY date DESC LIMIT {count}) AS last_row ORDER BY date ASC")
             return self.cursor.fetchall()
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-           description="A tool to handle data with sqlite database",
-           formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    subcommand = parser.add_subparsers(dest="subcommand", help="subcommands")
-
-    parser_trading = subcommand.add_parser("add", help="add data to db")
-    parser_trading.add_argument("--trading-report", dest="trading", type=str, action="store", help="trading report file with filename trading_<yyyy-mm-dd>")
-
-    parser.add_argument("db", type=str)
-
-    args = parser.parse_args()
-    db = DataBase(args.db)
-
-    if args.subcommand == "add":
-        try:
-            if args.trading:
-                date = datetime.datetime.strptime(os.path.basename(args.trading), "trading_%Y-%m-%d")
-                if date.weekday() > 4:
-                    print("Skip " + args.trading + ", which is Saturday/Sunday")
-                else:
-                    with open(args.trading, "r") as fd:
-                        data = json.load(fd)
-                        db.update_stock_report(date, data)
-        except Exception as error:
-            print(error)

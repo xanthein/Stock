@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stock"
+version = "0.1.0"
+description = "Stock analysis tool"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+	"bs4",
+	"lxml",
+    "mplfinance",
+    "scipy",
+    "twstock",
+]
+
+[project.scripts]
+stock = "stock.cli:run"
+
+[tool.setuptools.packages.find]
+where = ["src"]
