@@ -9,9 +9,10 @@ description = "Stock analysis tool"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-	"bs4",
-	"lxml",
+    "bs4",
+    "lxml",
     "mplfinance",
+    "six",
     "scipy",
     "twstock",
 ]
